@@ -1,11 +1,11 @@
 /**
  * @NApiVersion 2.1
  */
-define([ 'N/search','N/cache','N/record'],
+define([ 'N/search','N/cache','N/record','N/url'],
     /**
      * @param{search} search
      */
-    (search,cache,record) => {
+    (search,cache,record,url) => {
          const rolesCompletedEvaluation=(Id)=>
            {
              log.audit('rolesCompletedEvaluation',Id)
@@ -40,17 +40,17 @@ define([ 'N/search','N/cache','N/record'],
             search_Filters=[];search_Columns=[];
             search_Filters.push(search.createFilter('custrecord_gp_sodruleset',null,'anyof',accessControlPolicy));
             search_Filters.push(search.createFilter('isinactive',null,'is','F'));
-            search_Filters.push(search.createFilter('custrecord_gpsod_risklevel',null,'is','1'));
-            search_Columns.push(search.createColumn('custrecord_gpsod_basepermission'));
-            search_Columns.push(search.createColumn('custrecord_gpsod_conflictpermission'));
+            search_Filters.push(search.createFilter('custrecord_gp_sod_risklevel',null,'is','1'));
+            search_Columns.push(search.createColumn('custrecord_gp_sod_basepermission'));
+            search_Columns.push(search.createColumn('custrecord_gp_sod_conflictpermission'));
             let sodAccessControlRulesObj = search.create({type:"customrecord_gp_sodrules",filters:search_Filters,columns:search_Columns});
             let retrivedResults = getMoreThan1000Results(sodAccessControlRulesObj);
             let rulesArray=[];
             for(var x =0;x<retrivedResults.length;x++)
             {
                 let tempRulesArray=[];
-                tempRulesArray.push(retrivedResults[x].getText('custrecord_gpsod_basepermission'));
-                tempRulesArray.push(retrivedResults[x].getText('custrecord_gpsod_conflictpermission'));
+                tempRulesArray.push(retrivedResults[x].getText('custrecord_gp_sod_basepermission'));
+                tempRulesArray.push(retrivedResults[x].getText('custrecord_gp_sod_conflictpermission'));
                 rulesArray.push(tempRulesArray);
             }
             return rulesArray;
@@ -108,9 +108,9 @@ record.submitFields({
 
         const getSodRuleSet = () => {
             search_Filters=[];search_Columns=[];
-            search_Columns.push(search.createColumn({name: "custrecord_gpsod_basepermission", label: "Base Permission"}));
-            search_Columns.push(search.createColumn({name: "custrecord_gpsod_base_permissionlevel", label: "Base Permission Level"}));
-            search_Columns.push(search.createColumn({name: "custrecord_gpsod_conflictpermission", label: "Conflict To Permission"}));
+            search_Columns.push(search.createColumn({name: "custrecord_gp_sod_ed_basepermission", label: "Base Permission"}));
+           // search_Columns.push(search.createColumn({name: "custrecord_gpsod_base_permissionlevel", label: "Base Permission Level"}));
+            search_Columns.push(search.createColumn({name: "custrecord_gp_sod_ed_conflictpermission", label: "Conflict To Permission"}));
             search_Columns.push(search.createColumn({name: "custrecord_gpsod_conflic_permissionlevel", label: "Conflict Permission Level"}));
 
             var customrecord_sod_ruleset_objSearchObj = search.create({type:'customrecord_gpsod_ruleset',filters:search_Filters,columns:search_Columns});
@@ -119,8 +119,8 @@ record.submitFields({
             for(let x=0;x<retrivedResults.length;x++)
             {
                 let tempRuleset=[];
-                tempRuleset.push(retrivedResults[x].getText('custrecord_gpsod_basepermission')+'_'+retrivedResults[x].getText('custrecord_gpsod_base_permissionlevel'))
-                tempRuleset.push(retrivedResults[x].getText('custrecord_gpsod_conflictpermission')+'_'+retrivedResults[x].getText('custrecord_gpsod_conflic_permissionlevel'))
+                tempRuleset.push(retrivedResults[x].getText('custrecord_gp_sod_ed_basepermission')+'_'+retrivedResults[x].getText('custrecord_gpsod_base_permissionlevel'))
+                tempRuleset.push(retrivedResults[x].getText('custrecord_gp_sod_ed_conflictpermission')+'_'+retrivedResults[x].getText('custrecord_gpsod_conflic_permissionlevel'))
                 ruleset.push(tempRuleset);
             }
             const cachedData = cache.getCache({ name: 'TempCache', scope: cache.Scope.PROTECTED });
@@ -244,7 +244,30 @@ record.submitFields({
         let Month=new Date().getMonth();
         let year= new Date().getFullYear();
          return getMonth(Month)+' '+year
-      } 
+      }
+      const getMapReduceStatus=(jobId)=>
+        {
+            let scheduledscriptinstanceSearchObj = search.create({type: "scheduledscriptinstance",
+                filters:[["taskid","contains",jobId]],
+                columns:[search.createColumn({name: "percentcomplete",summary: "AVG"})]
+            });
+            let scheduledscriptinstanceSearchObjResult=scheduledscriptinstanceSearchObj.run().getRange(0,1);
+            let status=scheduledscriptinstanceSearchObjResult[0].getValue({name: "percentcomplete",summary: "AVG"});
+            return status;
+        }
+        const getFileId=(FileName)=>
+        {
+            let fileSearchObj = search.create({type: "file",
+                filters:[["name","is",FileName] ],
+                columns:[ "internalid"]
+            });
+            let fileResults=fileSearchObj.run().getRange(0,1);
+            return fileResults[0].getValue('internalid');
+        }
+        const getScriptUrl=(SCRIPTID,DEPLOYMENTID)=>
+        {
+           return url.resolveScript({ scriptId: SCRIPTID, deploymentId: DEPLOYMENTID});
+        }
 const getMonth=(month)=>
       {
   const monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -261,5 +284,5 @@ const removeValues=(obj)=>
   }
   return result;
 }
-        return {getEmployeeRoleData,getRolePermission,getSodRuleSet,getSodRules,getEvaluationPolicyRecords,getAuditDate,getSodAccessControlRules,getRolePermissions,rolesCompletedEvaluation}
+        return {getEmployeeRoleData,getRolePermission,getSodRuleSet,getSodRules,getEvaluationPolicyRecords,getAuditDate,getSodAccessControlRules,getRolePermissions,rolesCompletedEvaluation,getMapReduceStatus,getFileId,getScriptUrl}
     });

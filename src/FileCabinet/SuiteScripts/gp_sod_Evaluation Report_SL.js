@@ -2,17 +2,18 @@
  * @NApiVersion 2.1
  * @NScriptType Suitelet
  */
+var fileName='gp_sod_Progressbar.html';
+var scriptId_SL='customscript_gp_sod_evaluation_report';
+var deploymentId_SL='customdeploy_generate_sod_evaluation';
+var scriptId_MR='customscript_gp_sod_generate_rolereport';
+var deploymentId_MR='customdeploy_gp_sod_generate_role_audit';
 define(['N/ui/serverWidget','N/record','N/runtime','N/file','N/task','N/search','N/redirect','./gp_sod_searchLib.js'], function(serverWidget,record,runtime,file,task,search,redirect,searchLib) {
     function onRequest(context) {
          let sod_Evaluation_Form = serverWidget.createForm('SOD Evaluation Report');
         if (context.request.method === 'GET') {
             try{
                 let evaluationRecId=context.request.parameters.SummaryRecId;
-
                 let jobId=context.request.parameters.jobId;
-
-
-
                 // check the recordId and retrive the job status
                 if(evaluationRecId)
                 {
@@ -20,33 +21,9 @@ define(['N/ui/serverWidget','N/record','N/runtime','N/file','N/task','N/search',
                     let fieldLookUp = search.lookupFields({type: 'customrecord_gp_sod_evaluation_summary',id: evaluationRecId,columns: ['custrecord_gp_sod_evaluation_status']});
                     log.debug('fieldLookUp',fieldLookUp);
                     let htmlField = sod_Evaluation_Form.addField({id : 'custpage_inline_html',type : serverWidget.FieldType.INLINEHTML,label:'Html Field'});
-                    let fileObj = file.load({id: '22724'});
+                    let fileObj = file.load({id: searchLib.getFileId(fileName)});
                     let htmlContent=fileObj.getContents();  // load html content from the file cabinet
-
-                   var scheduledscriptinstanceSearchObj = search.create({
-   type: "scheduledscriptinstance",
-   filters:
-   [
-      ["taskid","contains",jobId]
-   ],
-   columns:
-   [
-      search.createColumn({
-         name: "percentcomplete",
-         summary: "AVG"
-      })
-   ]
-});
-
-var scheduledscriptinstanceSearchObjResult=scheduledscriptinstanceSearchObj.run().getRange(0,1);
-
-var status=scheduledscriptinstanceSearchObjResult[0].getValue({name: "percentcomplete",summary: "AVG"});
-log.debug('status',status);
-
-
-         
-         
-      
+                    let status=searchLib.getMapReduceStatus(jobId);
 
                     if(fieldLookUp.custrecord_gp_sod_evaluation_status=='Completed')
                     {
@@ -89,7 +66,7 @@ catch(error)
        let evaluationPolicy=context.request.parameters.custpage_evaluation_policy;
        let evaluationSummaryRecord= record.create({ type: 'customrecord_gp_sod_evaluation_summary'});
        evaluationSummaryRecord.setValue('name',searchLib.getAuditDate()+' SOD AUDIT Report');
-       evaluationSummaryRecord.setValue('custrecord_gpsod_reportrunby',runtime.getCurrentUser().id);
+       evaluationSummaryRecord.setValue('custrecord_gp_sod_reportrunby',runtime.getCurrentUser().id);
        evaluationSummaryRecord.setValue('custrecord_gp_sod_evaluationdatetime',new Date());
        evaluationSummaryRecord.setValue('custrecord_gp_sod_evalutationpolicy',evaluationPolicy);
        evaluationSummaryRecord.setValue('custrecord_gp_sod_evaluation_status','InProgress');
@@ -98,22 +75,22 @@ catch(error)
       // Map Reduce task to check the evaluation report
     var mrTask = task.create({
     taskType: task.TaskType.MAP_REDUCE,
-    scriptId: 'customscript_generate_role_audit',
-    deploymentId: 'customdeploy_generate_role_audit',
+    scriptId: scriptId_MR,
+    deploymentId: deploymentId_MR,
      params: {
         custscript_gp_sod_evaluation_rec: SummaryRecId,
-        custscript_sod_access_control_policy : evaluationPolicy
+         custscript_gp_sod_access_control_policy : evaluationPolicy
     }
 });
 let mrTaskId=mrTask.submit();
 
 if(mrTaskId)
 {
-    redirect.redirect({
-    url: '/app/site/hosting/scriptlet.nl?script=673&deploy=1&SummaryRecId='+SummaryRecId+'&jobId='+mrTaskId
-});
+    let Suitelet_Url=searchLib.getScriptUrl(scriptId_SL,deploymentId_SL);
+    Suitelet_Url=Suitelet_Url+'&SummaryRecId='+SummaryRecId;
+    Suitelet_Url=Suitelet_Url+'&jobId='+mrTaskId;
+    redirect.redirect({url: Suitelet_Url});
 }
-
 }
 catch(error){
     log.error('error in else part',error);

@@ -20,7 +20,7 @@ define(['N/record','N/config', 'N/redirect','N/ui/serverWidget','N/search','./gp
         let sod_Name=context.request.parameters.custpage_sod_name;
         var defaultSodRuleset = record.copy({type:'customrecord_gp_sod_default_ruleset',id: sod_Id,isDynamic: true });
         defaultSodRuleset.setValue('name',sod_Name);
-        defaultSodRuleset.setValue('custrecord_gpsod_defaultpolicy',false);
+        defaultSodRuleset.setValue('custrecord_gp_sod_defaultpolicy',false);
         var savedRecId=defaultSodRuleset.save();
        
 

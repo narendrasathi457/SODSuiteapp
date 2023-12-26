@@ -21,7 +21,7 @@ define(['./gp_sod_searchLib.js','N/cache','N/record','N/runtime'],
                 log.debug('context_key',context.key);
                 log.debug('context_value',context.value);
 
-                let evaluationPolicyRecord=runtime.getCurrentScript().getParameter({name: 'custscript_sod_access_control_policy'}); 
+                let evaluationPolicyRecord=runtime.getCurrentScript().getParameter({name: 'custscript_gp_sod_access_control_policy'});
 
                 const cachedvalue = searchLib.getSodAccessControlRules(evaluationPolicyRecord);
 
