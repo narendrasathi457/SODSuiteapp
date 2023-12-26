@@ -6,7 +6,7 @@ define(['N/record', 'N/log', 'N/ui/serverWidget','N/url'],
     function(record, log, serverWidget,url) {
 
         function beforeLoad(context) {
-            // Check if the record is in view mode (not in edit mode)
+            // Check if the record is in view mode (not in edit mode
            try{
            var currentRecord=context.newRecord;
              var defaultPolicy=currentRecord.getValue('custrecord_gpsod_defaultpolicy');
