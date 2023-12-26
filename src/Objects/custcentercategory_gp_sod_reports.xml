@@ -1,0 +1,25 @@
+<centercategory scriptid="custcentercategory_gp_sod_reports">
+  <center>BASIC</center>
+  <centertab>BASICCENTERREPORTS</centertab>
+  <label>SOD Reports</label>
+  <links>
+    <link>
+      <linklabel>Run Sod Evaluation Reports</linklabel>
+      <linkobject>[scriptid=custlink_1_8137489_sb1_185]</linkobject>
+      <linktasktype>LINK</linktasktype>
+      <shortlist>F</shortlist>
+    </link>
+    <link>
+      <linklabel>SOD Access Control Policy</linklabel>
+      <linkobject>[scriptid=customrecord_gp_sod_default_ruleset]</linkobject>
+      <linktasktype>LIST</linktasktype>
+      <shortlist>F</shortlist>
+    </link>
+    <link>
+      <linklabel>SOD Evaluation Summary List</linklabel>
+      <linkobject>[scriptid=customrecord_gp_sod_evaluation_summary]</linkobject>
+      <linktasktype>LIST</linktasktype>
+      <shortlist>F</shortlist>
+    </link>
+  </links>
+</centercategory>
