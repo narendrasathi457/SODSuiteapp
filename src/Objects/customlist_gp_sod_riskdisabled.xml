@@ -1,0 +1,16 @@
+<customlist scriptid="customlist_gp_sod_riskdisabled">
+  <description></description>
+  <isinactive>F</isinactive>
+  <isordered>T</isordered>
+  <name>GP|SOD Risk Disabled</name>
+  <customvalues>
+    <customvalue scriptid="val_30733_8137489_sb1_599">
+      <isinactive>F</isinactive>
+      <value>No</value>
+    </customvalue>
+    <customvalue scriptid="val_30734_8137489_sb1_803">
+      <isinactive>F</isinactive>
+      <value>Yes</value>
+    </customvalue>
+  </customvalues>
+</customlist>
