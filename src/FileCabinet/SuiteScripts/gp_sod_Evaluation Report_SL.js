@@ -12,8 +12,8 @@ define(['N/ui/serverWidget','N/record','N/runtime','N/file','N/task','N/search',
          let sod_Evaluation_Form = serverWidget.createForm('SOD Evaluation Report');
         if (context.request.method === 'GET') {
             try{
-                let evaluationRecId=context.request.parameters.SummaryRecId;
-                let jobId=context.request.parameters.jobId;
+                var evaluationRecId=context.request.parameters.SummaryRecId;
+                var jobId=context.request.parameters.jobId;
                 // check the recordId and retrive the job status
                 if(evaluationRecId)
                 {
