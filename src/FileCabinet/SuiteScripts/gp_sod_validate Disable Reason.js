@@ -11,7 +11,7 @@ define(['N/currentRecord'],
             if(sublistName==='recmachcustrecord_gp_sodruleset'){
             var sodRiskLevel = currentRecordObj.getCurrentSublistValue({
                 sublistId: sublistName,
-                fieldId: 'custrecord_gpsod_risklevel'
+                fieldId: 'custrecord_gp_sod_risklevel'
             });
             if (sodRiskLevel==='2') {
                 var sodRiskLevelReason = currentRecordObj.getCurrentSublistValue({
